@@ -1,34 +1,59 @@
-﻿using System;
+﻿using Microsoft.Extensions.Logging;
+using Robot.MessageBus;
+using Robot.Messages;
+using Spot.Drivers.Servos;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using Robot.MessageBus;
-using Microsoft.Extensions.Logging;
-using Spot.Drivers;
 
 namespace Spot.Controllers
 {
     public class ServoController : IServoController
     {
-        private List<IServo> _servos;
-        private IMessageBroker _messageBroker;
-        private ILogger<ServoController> _log;
+        private readonly IList<IServo> _servos;
+        private readonly IMessageBroker _messageBroker;
+        private readonly ILogger<ServoController> _log;
 
-        public ServoController(List<IServo> list, IMessageBroker messageBroker, ILogger<ServoController> logger)
+        public ServoController(IList<IServo> servos, IMessageBroker messageBroker, ILogger<ServoController> logger)
         {
-            _servos = list;
+            _servos = servos;
             _messageBroker = messageBroker;
             _log = logger;
         }
 
-        public Task StartAsync(CancellationToken cancellationToken)
+        public async Task StartAsync(CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            _messageBroker.Subscribe<ServoMessage>(OnServoChanged);
+
+            await Task.CompletedTask;
         }
 
-        public Task StopAsync(CancellationToken cancellationToken)
+        public async Task StopAsync(CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            await Task.CompletedTask;
+        }
+
+        private void OnServoChanged(IMessage message)
+        {
+            var servoMessage = (ServoMessage)message;
+            _log.LogDebug($"ServoMessage: id={servoMessage.Id}; pulse={servoMessage.PulseWidth}; angle={servoMessage.Angle}");
+
+            if (servoMessage.Id < 0 || servoMessage.Id > _servos.Count - 1)
+            {
+                _log.LogError($"Invalid servo id ({servoMessage.Id})");
+                return;
+            }
+
+            var servo = _servos[servoMessage.Id];
+
+            if (servoMessage.PulseWidth.HasValue)
+            {
+                servo.PulseWidgh = servoMessage.PulseWidth.Value;
+            }
+            else if (servoMessage.Angle.HasValue)
+            {
+                servo.Angle = servoMessage.Angle.Value;
+            }
         }
     }
 }
