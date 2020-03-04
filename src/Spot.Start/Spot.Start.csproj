@@ -26,6 +26,12 @@
     <ProjectReference Include="..\Spot.Drivers\Spot.Drivers.csproj" />
     <ProjectReference Include="..\Spot.Reactive\Spot.Reactive.csproj" />
   </ItemGroup>
+  
+  <ItemGroup>
+    <Reference Include="M2Mqtt">
+      <HintPath>..\..\lib\m2mqtt\netcoreapp2.2\M2Mqtt.dll</HintPath>
+    </Reference>
+  </ItemGroup>
 
   <ItemGroup>
     <None Update="appsettings.json">
