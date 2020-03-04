@@ -6,7 +6,7 @@ using Robot.Controllers.RemoteControl;
 using Robot.Drivers.RemoteControl;
 using Robot.MessageBus;
 using Spot.Controllers;
-using Spot.Drivers;
+using Spot.Drivers.Servos;
 using Spot.Reactive;
 using System.Collections.Generic;
 using System.Device.I2c;
