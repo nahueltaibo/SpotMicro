@@ -1,4 +1,4 @@
-﻿using MessageBus;
+﻿using Robot.MessageBus;
 
 namespace Robot.Messages
 {

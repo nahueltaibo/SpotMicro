@@ -1,5 +1,5 @@
-﻿using MessageBus;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
+using Robot.MessageBus;
 using Robot.MessageBus.Messages;
 using Robot.Messages;
 using Robot.Utils;
