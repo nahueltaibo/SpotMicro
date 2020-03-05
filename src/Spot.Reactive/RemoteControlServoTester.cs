@@ -2,6 +2,7 @@
 using Robot.MessageBus;
 using Robot.MessageBus.Messages;
 using Robot.Messages;
+using Robot.Model.RemoteControl;
 using Robot.Utils;
 using System.Threading;
 using System.Threading.Tasks;
@@ -35,12 +36,12 @@ namespace Spot.Reactive
         {
             var rcMessage = (RemoteControlMessage)message;
 
-            if (rcMessage.Throttle.HasValue)
+            if (rcMessage.Key == (int)RemoteControlKey.Throttle)
             {
                 _messageBroker.Publish(new ServoMessage
                 {
                     Id = 0,
-                    PulseWidth = (int)ValueMapper.Map(rcMessage.Throttle.Value, -1, 1, 500, 2500)
+                    PulseWidth = (int)ValueMapper.Map(rcMessage.Value, -1, 1, 500, 2500)
                 });
             }
         }
