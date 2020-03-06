@@ -17,9 +17,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Spot.Reactive", "Spot.React
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Robot.Messages", "Robot.Messages\Robot.Messages.csproj", "{081A51B6-1F0A-490E-9B3B-8C290D719C90}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Spot.Drivers", "Spot.Drivers\Spot.Drivers.csproj", "{EDD62060-2DA0-49A3-A15D-C09325ED027E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Spot.Drivers", "Spot.Drivers\Spot.Drivers.csproj", "{EDD62060-2DA0-49A3-A15D-C09325ED027E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Spot.Controllers", "Spot.Controllers\Spot.Controllers.csproj", "{82448AFE-7B74-4D0D-A497-714EAFFA10A6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Spot.Controllers", "Spot.Controllers\Spot.Controllers.csproj", "{82448AFE-7B74-4D0D-A497-714EAFFA10A6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
