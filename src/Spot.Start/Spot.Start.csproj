@@ -10,11 +10,9 @@
   </ItemGroup>
   
   <ItemGroup>
-    <PackageReference Include="Gamepad" Version="1.0.1" />
-    <PackageReference Include="Iot.Device.Bindings" Version="1.1.0-prerelease.20156.1" />
-    <PackageReference Include="Microsoft.Extensions.Hosting" Version="5.0.0-preview.2.20156.1" />
-    <PackageReference Include="Robot.Controllers" Version="1.0.0-prerelease.200306170607" />
-    <PackageReference Include="Robot.Drivers" Version="1.0.0-prerelease.200306170607" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="3.1.2" />
+    <PackageReference Include="Robot.Controllers" Version="1.0.1-dev200307024234" />
+    <PackageReference Include="Robot.MessageBus" Version="1.0.4-dev200307024234" />
     <PackageReference Include="Serilog.AspNetCore" Version="3.3.0-dev-00152" />
     <PackageReference Include="Serilog.Extensions.Logging" Version="3.0.2-dev-10272" />
     <PackageReference Include="Serilog.Sinks.Console" Version="4.0.0-dev-00839" />
