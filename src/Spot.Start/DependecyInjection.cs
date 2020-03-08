@@ -1,15 +1,18 @@
 ﻿using Iot.Device.Pwm;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Robot.Controllers.RemoteControl;
 using Robot.Drivers.RemoteControl;
 using Robot.MessageBus;
+using Robot.ServoMotors;
 using Spot.Controllers;
-using Spot.Drivers.Servos;
 using Spot.Reactive;
 using System.Collections.Generic;
 using System.Device.I2c;
+using System.Linq;
 
 namespace Spot.Start
 {
@@ -36,7 +39,7 @@ namespace Spot.Start
             return services;
         }
 
-        public static IServiceCollection AddControlLayer(this IServiceCollection services)
+        public static IServiceCollection AddControlLayer(this IServiceCollection services, HostBuilderContext hostContext)
         {
             // Configure the Remote Control Controller
             services.AddHostedService<RemoteControlController>(s =>
@@ -55,26 +58,17 @@ namespace Spot.Start
                 var busId = 1;
                 var selectedI2cAddress = 0b000000; // A5 A4 A3 A2 A1 A0
                 var deviceAddress = Pca9685.I2cAddressBase + selectedI2cAddress;
-                var settings = new I2cConnectionSettings(busId, deviceAddress);
-                var device = I2cDevice.Create(settings);
+                var i2cSettings = new I2cConnectionSettings(busId, deviceAddress);
+                var device = I2cDevice.Create(i2cSettings);
                 var pca9685 = new Pca9685(device);
                 pca9685.PwmFrequency = 50;
 
-                return new ServoController(new List<IServo>
-                {
-                    new ServoDriver(pca9685, 0),
-                    new ServoDriver(pca9685, 1),
-                    new ServoDriver(pca9685, 2),
-                    new ServoDriver(pca9685, 3),
-                    new ServoDriver(pca9685, 4),
-                    new ServoDriver(pca9685, 5),
-                    new ServoDriver(pca9685, 6),
-                    new ServoDriver(pca9685, 7),
-                    new ServoDriver(pca9685, 8),
-                    new ServoDriver(pca9685, 9),
-                    new ServoDriver(pca9685, 10),
-                    new ServoDriver(pca9685, 11)
-                }, s.GetService<IMessageBroker>(), s.GetService<ILogger<ServoController>>());
+
+                var configs = hostContext.Configuration.GetSection("sensors:sonars");
+                var mappedConfigs = configs.Get<IEnumerable<PwmServoMotorDriverSettings>>();
+                var sensors = mappedConfigs.Select(settings => new PwmServoMotorDriver(pca9685, settings, s.GetService<ILogger<PwmServoMotorDriver>>())).ToArray();
+
+                return new ServoController(sensors, s.GetService<IMessageBroker>(), s.GetService<ILogger<ServoController>>());
             });
 
             return services;

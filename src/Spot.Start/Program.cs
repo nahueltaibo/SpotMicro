@@ -66,7 +66,7 @@ namespace Spot.Start
                 {
                     services.AddInfrastructure();
 
-                    services.AddControlLayer();
+                    services.AddControlLayer(hostContext);
 
                     services.AddReactiveLayer();
 

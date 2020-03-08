@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using Robot.MessageBus;
 using Robot.Messages;
-using Spot.Drivers.Servos;
+using Robot.ServoMotors;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -10,11 +10,11 @@ namespace Spot.Controllers
 {
     public class ServoController : IServoController
     {
-        private readonly IList<IServo> _servos;
+        private readonly IList<IServoMotor> _servos;
         private readonly IMessageBroker _messageBroker;
         private readonly ILogger<ServoController> _log;
 
-        public ServoController(IList<IServo> servos, IMessageBroker messageBroker, ILogger<ServoController> logger)
+        public ServoController(IList<IServoMotor> servos, IMessageBroker messageBroker, ILogger<ServoController> logger)
         {
             _servos = servos;
             _messageBroker = messageBroker;
