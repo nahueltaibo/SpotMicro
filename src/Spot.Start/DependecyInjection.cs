@@ -64,9 +64,13 @@ namespace Spot.Start
                 pca9685.PwmFrequency = 50;
 
 
-                var configs = hostContext.Configuration.GetSection("sensors:sonars");
+                var configs = hostContext.Configuration.GetSection("actuatos:servoMotors");
                 var mappedConfigs = configs.Get<IEnumerable<PwmServoMotorDriverSettings>>();
-                var sensors = mappedConfigs.Select(settings => new PwmServoMotorDriver(pca9685, settings, s.GetService<ILogger<PwmServoMotorDriver>>())).ToArray();
+
+                var sensors = mappedConfigs.Select(settings => new PwmServoMotorDriver(
+                    pca9685.CreatePwmChannel(settings.ChannelId), 
+                    settings, 
+                    s.GetService<ILogger<PwmServoMotorDriver>>())).ToArray();
 
                 return new ServoController(sensors, s.GetService<IMessageBroker>(), s.GetService<ILogger<ServoController>>());
             });

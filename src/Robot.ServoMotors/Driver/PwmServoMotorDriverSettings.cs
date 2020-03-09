@@ -1,28 +1,21 @@
-﻿namespace Robot.ServoMotors
+﻿using System;
+
+namespace Robot.ServoMotors
 {
     public class PwmServoMotorDriverSettings
     {
+        private double? _minimumAngleLimit;
+        private double? _maximumAngleLimit;
+
         /// <summary>
         /// The Id used to identify and work with a specific servo
         /// </summary>
         public int ServoId { get; set; }
 
         /// <summary>
-        /// The channel in the 16 servo controller hat were the servo is connected.
+        /// The Channel Id in the PCA9685 the servo is connected to
         /// </summary>
         public int ChannelId { get; set; }
-
-        /// <summary>
-        /// Limit the maximum angle a specific servo can reach
-        /// Used for calibration to avoid destroying the hardware
-        /// </summary>
-        public double MinimumAngleLimit { get; set; }
-
-        /// <summary>
-        /// Limit the minimum angle a specific servo can reach.
-        /// Used for calibration to avoid destroying the hardware
-        /// </summary>
-        public double MaximumAngleLimit { get; set; }
 
         /// <summary>
         /// The maximum angle in radians the servo motor can move represented as a value between 0 and 2*PI
@@ -37,8 +30,26 @@
         public int MinimumPulseWidthMicroseconds { get; set; }
 
         /// <summary>
-        /// The maxnimum pulse width, in microseconds, that represent an angle for maximum angle
+        /// The pulse width, when the servo is at its zero Radiand angle
+        /// Use this to calibrate the Sero of the servo
+        /// </summary>
+        public int ZeroPulseWidthMicroseconds { get; set; }
+
+        /// <summary>
+        /// The maximum pulse width, in microseconds, that represent an angle for maximum angle
         /// </summary>
         public int MaximumPulseWidthMicroseconds { get; set; }
+
+        /// <summary>
+        /// Limit the maximum angle a specific servo can reach
+        /// Used for calibration to avoid destroying the hardware
+        /// </summary>
+        public double MinimumAngleLimit { get => _minimumAngleLimit ?? (-2 * Math.PI); set => _minimumAngleLimit = value; }
+
+        /// <summary>
+        /// Limit the minimum angle a specific servo can reach.
+        /// Used for calibration to avoid destroying the hardware
+        /// </summary>
+        public double MaximumAngleLimit { get => _maximumAngleLimit ?? (2 * Math.PI); set => _maximumAngleLimit = value; }
     }
 }

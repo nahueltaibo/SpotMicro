@@ -1,15 +1,15 @@
 ﻿namespace Robot.ServoMotors
-{ 
+{
     public interface IServoMotor
     {
         /// <summary>
         /// Length of the pulse in microseconds
         /// </summary>
-        int PulseWidgh { set; }
+        void SetPulseWidth(int microseconds);
 
         /// <summary>
         /// Angle in Radians of the servo
         /// </summary>
-        double Angle { set; }
+        void SetAngle(double radians);
     }
 }

@@ -48,11 +48,11 @@ namespace Spot.Controllers
 
             if (servoMessage.PulseWidth.HasValue)
             {
-                servo.PulseWidgh = servoMessage.PulseWidth.Value;
+                servo.SetPulseWidth(servoMessage.PulseWidth.Value);
             }
             else if (servoMessage.Angle.HasValue)
             {
-                servo.Angle = servoMessage.Angle.Value;
+                servo.SetAngle(servoMessage.Angle.Value);
             }
         }
     }

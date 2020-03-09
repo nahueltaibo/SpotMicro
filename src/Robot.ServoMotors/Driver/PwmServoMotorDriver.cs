@@ -1,40 +1,53 @@
 ﻿using Iot.Device.Pwm;
-using Iot.Device.ServoMotor;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Device.Pwm;
 
 namespace Robot.ServoMotors
 {
     public class PwmServoMotorDriver : IServoMotor
     {
-        private readonly Pca9685 _pca9685;
         private readonly PwmServoMotorDriverSettings _settings;
         private readonly ILogger<PwmServoMotorDriver> _logger;
-        private readonly ServoMotor _servo;
+        private readonly PwmChannel _pwmChannel;
         private double _radiansToMicroseconds;
         private int _minimumRangeLimit;
         private int _maximumRangeLimit;
 
-        public PwmServoMotorDriver(Pca9685 pca9685, PwmServoMotorDriverSettings settings, ILogger<PwmServoMotorDriver> logger)
+        public PwmServoMotorDriver(Pca9685 pca9685, int channelId, PwmServoMotorDriverSettings settings, ILogger<PwmServoMotorDriver> logger)
+        : this(pca9685.CreatePwmChannel(channelId),
+              settings,
+              logger)
         {
-            _pca9685 = pca9685;
+        }
+
+        public PwmServoMotorDriver(PwmChannel pwmChannel, PwmServoMotorDriverSettings settings, ILogger<PwmServoMotorDriver> logger)
+        {
+            _pwmChannel = pwmChannel;
             _settings = settings;
             _logger = logger;
 
-            Calibrate(settings.MaximumAngle, settings.MinimumPulseWidthMicroseconds, settings.MaximumPulseWidthMicroseconds);
-
-            var pwmChannel = _pca9685.CreatePwmChannel(_settings.ChannelId);
-
-            _servo = new ServoMotor(
-                pwmChannel,
-                settings.MaximumAngle,
-                settings.MinimumPulseWidthMicroseconds,
-                settings.MaximumPulseWidthMicroseconds);
+            Calibrate(settings.MaximumAngle, settings.MinimumPulseWidthMicroseconds, settings.MaximumPulseWidthMicroseconds, settings.ZeroPulseWidthMicroseconds);
         }
 
-        private void Calibrate(double maximumAngle, int pulseWidthAtAngleZero, int pulseWidthAtAngleMaximum)
+        public void SetPulseWidth(int microseconds)
         {
-            _radiansToMicroseconds = (pulseWidthAtAngleMaximum - pulseWidthAtAngleZero) / maximumAngle;
+            // Clamp the value to be sure we are not trying to push it outside of the servo limits
+            microseconds = Math.Clamp(microseconds, _minimumRangeLimit, _maximumRangeLimit);
+
+            var dutyCycle = MicrosecondsToDutyCycle(microseconds);
+
+            _pwmChannel.DutyCycle = dutyCycle;
+        }
+
+        public void SetAngle(double radians)
+        {
+            SetPulseWidth(RadiansToMicroseconds(radians));
+        }
+
+        private void Calibrate(double maximumAngle, int pulseWidthAtAngleMinimum, int pulseWidthAtAngleMaximum, int zeroPulseWidthMicroseconds)
+        {
+            _radiansToMicroseconds = ((pulseWidthAtAngleMaximum - pulseWidthAtAngleMinimum) / maximumAngle);
 
             _minimumRangeLimit = RadiansToMicroseconds(_settings.MinimumAngleLimit);
             _maximumRangeLimit = RadiansToMicroseconds(_settings.MaximumAngleLimit);
@@ -42,21 +55,18 @@ namespace Robot.ServoMotors
 
         private int RadiansToMicroseconds(double radians)
         {
-            return (int)(_radiansToMicroseconds * radians);
+            return (int)(_radiansToMicroseconds * radians) + _settings.ZeroPulseWidthMicroseconds;
         }
 
-        public int PulseWidgh
+        /// <summary>
+        /// Converts from microseconds to the duty cycle (between 0 and 1), considering the frequency of the PWM channel
+        /// </summary>
+        /// <returns>The duty cycle for the current PWM channel.</returns>
+        private double MicrosecondsToDutyCycle(int microseconds)
         {
-            set
-            {
-                // Clamping the value to be sure we dont go passing the constraints settings
-                _servo.WritePulseWidth(Math.Clamp(value, _minimumRangeLimit, _maximumRangeLimit));
-            }
-        }
+            double dutyCycle = (double)microseconds / 1_000_000 * _pwmChannel.Frequency;
 
-        public double Angle
-        {
-            set => PulseWidgh = RadiansToMicroseconds(value);
+            return dutyCycle;
         }
     }
 }
