@@ -5,7 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Robot.MessageBus" Version="1.0.4-dev200307230458" />
+    <PackageReference Include="Robot.MessageBus" Version="1.0.4-dev200309142043" />
   </ItemGroup>
 
 </Project>

@@ -3,7 +3,8 @@ using Robot.MessageBus;
 using Robot.MessageBus.Messages;
 using Robot.Messages;
 using Robot.Model.RemoteControl;
-using Robot.Utils;
+using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -36,14 +37,36 @@ namespace Spot.Reactive
         {
             var rcMessage = (RemoteControlMessage)message;
 
-            if (rcMessage.Key == (int)RemoteControlKey.Throttle)
+            if (rcMessage.Key == (int)RemoteControlKey.X && rcMessage.Value == 1)
             {
-                _messageBroker.Publish(new ServoMessage
+                foreach(var servoId in Enumerable.Range(1, 16))
                 {
-                    Id = 0,
-                    PulseWidth = (int)ValueMapper.Map(rcMessage.Value, -1, 1, 500, 2500)
-                });
+                    MoveServoToAngle(servoId, 0);
+                }
             }
+            else if (rcMessage.Key == (int)RemoteControlKey.A && rcMessage.Value == 1)
+            {
+                foreach (var servoId in Enumerable.Range(1, 16))
+                {
+                    MoveServoToAngle(servoId, -Math.PI / 8);
+                }
+            }
+            else if (rcMessage.Key == (int)RemoteControlKey.B && rcMessage.Value == 1)
+            {
+                foreach (var servoId in Enumerable.Range(1, 16))
+                {
+                    MoveServoToAngle(servoId, Math.PI / 8);
+                }
+            }
+        }
+
+        private void MoveServoToAngle(int servoId, double radians)
+        {
+            _messageBroker.Publish(new ServoMessage
+            {
+                Id = servoId,
+                Angle = radians
+            });
         }
     }
 }

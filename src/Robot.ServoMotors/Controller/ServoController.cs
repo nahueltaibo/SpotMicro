@@ -1,8 +1,11 @@
 ﻿using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using Robot.MessageBus;
 using Robot.Messages;
 using Robot.ServoMotors;
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -30,29 +33,49 @@ namespace Spot.Controllers
 
         public async Task StopAsync(CancellationToken cancellationToken)
         {
+            foreach (var servo in _servos)
+            {
+                try
+                {
+                    servo.Dispose();
+                }
+                catch (Exception ex)
+                {
+                    _log.LogError($"Error disposing servo with ID {servo.Id}", ex);
+                }
+
+                _log.LogDebug($"{nameof(ServoController)} Stopped");
+            }
             await Task.CompletedTask;
         }
 
         private void OnServoChanged(IMessage message)
         {
-            var servoMessage = (ServoMessage)message;
-            _log.LogDebug($"ServoMessage: id={servoMessage.Id}; pulse={servoMessage.PulseWidth}; angle={servoMessage.Angle}");
-
-            if (servoMessage.Id < 0 || servoMessage.Id > _servos.Count - 1)
+            try
             {
-                _log.LogError($"Invalid servo id ({servoMessage.Id})");
-                return;
+                var servoMessage = (ServoMessage)message;
+                _log.LogDebug($"ServoMessage: id={servoMessage.Id}; pulse={servoMessage.PulseWidth}; angle={servoMessage.Angle}");
+
+                var servo = _servos.FirstOrDefault(s => s.Id == servoMessage.Id);
+
+                if (servo == null)
+                {
+                    _log.LogError($"Invalid servo id ({servoMessage.Id})");
+                    return;
+                }
+
+                if (servoMessage.PulseWidth.HasValue)
+                {
+                    servo.SetPulseWidth(servoMessage.PulseWidth.Value);
+                }
+                else if (servoMessage.Angle.HasValue)
+                {
+                    servo.SetAngle(servoMessage.Angle.Value);
+                }
             }
-
-            var servo = _servos[servoMessage.Id];
-
-            if (servoMessage.PulseWidth.HasValue)
+            catch (Exception ex)
             {
-                servo.SetPulseWidth(servoMessage.PulseWidth.Value);
-            }
-            else if (servoMessage.Angle.HasValue)
-            {
-                servo.SetAngle(servoMessage.Angle.Value);
+                _log.LogError($"Error processing ServoMessage {JsonConvert.SerializeObject(message)}", ex);
             }
         }
     }

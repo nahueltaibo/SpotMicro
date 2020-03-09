@@ -7,7 +7,7 @@
   <ItemGroup>
     <PackageReference Include="Iot.Device.Bindings" Version="1.1.0-prerelease.20153.1" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="3.1.2" />
-    <PackageReference Include="Robot.MessageBus" Version="1.0.4-dev200307230458" />
+    <PackageReference Include="Robot.MessageBus" Version="1.0.4-dev200309142043" />
   </ItemGroup>
 
   <ItemGroup>

@@ -63,7 +63,6 @@ namespace Spot.Start
                 var pca9685 = new Pca9685(device);
                 pca9685.PwmFrequency = 50;
 
-
                 var configs = hostContext.Configuration.GetSection("actuatos:servoMotors");
                 var mappedConfigs = configs.Get<IEnumerable<PwmServoMotorDriverSettings>>();
 

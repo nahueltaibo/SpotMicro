@@ -1,7 +1,14 @@
-﻿namespace Robot.ServoMotors
+﻿using System;
+
+namespace Robot.ServoMotors
 {
-    public interface IServoMotor
+    public interface IServoMotor : IDisposable
     {
+        /// <summary>
+        /// The unique ID of the servo
+        /// </summary>
+        int Id { get; }
+
         /// <summary>
         /// Length of the pulse in microseconds
         /// </summary>

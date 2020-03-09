@@ -13,6 +13,9 @@ namespace Robot.ServoMotors
         private double _radiansToMicroseconds;
         private int _minimumRangeLimit;
         private int _maximumRangeLimit;
+        private bool _isServoStarted;
+
+        public int Id => _settings.ServoId;
 
         public PwmServoMotorDriver(Pca9685 pca9685, int channelId, PwmServoMotorDriverSettings settings, ILogger<PwmServoMotorDriver> logger)
         : this(pca9685.CreatePwmChannel(channelId),
@@ -45,6 +48,11 @@ namespace Robot.ServoMotors
             Calibrate(settings.MaximumAngle, settings.MinimumPulseWidthMicroseconds, settings.MaximumPulseWidthMicroseconds, settings.ZeroPulseWidthMicroseconds);
         }
 
+        public void SetAngle(double radians)
+        {
+            SetPulseWidth(RadiansToMicroseconds(radians));
+        }
+
         public void SetPulseWidth(int microseconds)
         {
             // Clamp the value to be sure we are not trying to push it outside of the servo limits
@@ -53,11 +61,12 @@ namespace Robot.ServoMotors
             var dutyCycle = MicrosecondsToDutyCycle(microseconds);
 
             _pwmChannel.DutyCycle = dutyCycle;
-        }
-
-        public void SetAngle(double radians)
-        {
-            SetPulseWidth(RadiansToMicroseconds(radians));
+            if (!_isServoStarted)
+            {
+                _pwmChannel.Start();
+                _isServoStarted = true;
+                _logger.LogInformation($"Servo {_settings.ServoId} started");
+            }
         }
 
         private void Calibrate(double maximumAngle, int pulseWidthAtAngleMinimum, int pulseWidthAtAngleMaximum, int zeroPulseWidthMicroseconds)
@@ -82,6 +91,26 @@ namespace Robot.ServoMotors
             double dutyCycle = (double)microseconds / 1_000_000 * _pwmChannel.Frequency;
 
             return dutyCycle;
+        }
+
+        ~PwmServoMotorDriver()
+        {
+            Dispose(false);
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        private void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                _pwmChannel.Stop();
+                _logger.LogInformation($"Servo {_settings.ServoId} stopped");
+            }
         }
     }
 }
