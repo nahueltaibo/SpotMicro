@@ -23,6 +23,21 @@ namespace Robot.ServoMotors
 
         public PwmServoMotorDriver(PwmChannel pwmChannel, PwmServoMotorDriverSettings settings, ILogger<PwmServoMotorDriver> logger)
         {
+            if (settings.MaximumAngle > 2 * Math.PI)
+            {
+                throw new ArgumentException(nameof(settings.MaximumAngle), "Maximum angle cant be higher than a full turn (2*PI)");
+            }
+
+            if (settings.MaximumAngleLimit - settings.MinimumAngleLimit <= 0)
+            {
+                throw new ArgumentException($"Configured servo limits wont allow the servo to move. (min:{settings.MinimumAngleLimit}, max:{settings.MaximumAngle})");
+            }
+
+            if (settings.MaximumAngleLimit - settings.MinimumAngleLimit > settings.MaximumAngle)
+            {
+                throw new ArgumentException("Servo limits can go beyond servo's Maximum angle");
+            }
+
             _pwmChannel = pwmChannel;
             _settings = settings;
             _logger = logger;

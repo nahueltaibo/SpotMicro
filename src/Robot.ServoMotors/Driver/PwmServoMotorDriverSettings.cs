@@ -1,12 +1,7 @@
-﻿using System;
-
-namespace Robot.ServoMotors
+﻿namespace Robot.ServoMotors
 {
     public class PwmServoMotorDriverSettings
     {
-        private double? _minimumAngleLimit;
-        private double? _maximumAngleLimit;
-
         /// <summary>
         /// The Id used to identify and work with a specific servo
         /// </summary>
@@ -44,12 +39,12 @@ namespace Robot.ServoMotors
         /// Limit the maximum angle a specific servo can reach
         /// Used for calibration to avoid destroying the hardware
         /// </summary>
-        public double MinimumAngleLimit { get => _minimumAngleLimit ?? (-2 * Math.PI); set => _minimumAngleLimit = value; }
+        public double MinimumAngleLimit { get; set; }
 
         /// <summary>
         /// Limit the minimum angle a specific servo can reach.
         /// Used for calibration to avoid destroying the hardware
         /// </summary>
-        public double MaximumAngleLimit { get => _maximumAngleLimit ?? (2 * Math.PI); set => _maximumAngleLimit = value; }
+        public double MaximumAngleLimit { get; set; }
     }
 }
