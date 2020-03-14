@@ -32,9 +32,14 @@ namespace Spot.Start
             return services;
         }
 
-        public static IServiceCollection AddReactiveLayer(this IServiceCollection services)
+        public static IServiceCollection AddReactiveLayer(this IServiceCollection services, HostBuilderContext hostContext)
         {
-            services.AddHostedService<RemoteControlServoTester>();
+            var configs = hostContext.Configuration.GetSection("actuatos:servoMotors");
+            var mappedConfigs = configs.Get<IEnumerable<PwmServoMotorDriverSettings>>();
+
+            var servoIds = mappedConfigs.Select(config => config.ServoId).ToList();
+
+            services.AddHostedService<PoseAgent>((s) => new PoseAgent(servoIds, s.GetService<IMessageBroker>(), s.GetService<ILogger<PoseAgent>>()));
 
             return services;
         }
@@ -67,8 +72,8 @@ namespace Spot.Start
                 var mappedConfigs = configs.Get<IEnumerable<PwmServoMotorDriverSettings>>();
 
                 var sensors = mappedConfigs.Select(settings => new PwmServoMotorDriver(
-                    pca9685.CreatePwmChannel(settings.ChannelId), 
-                    settings, 
+                    pca9685.CreatePwmChannel(settings.ChannelId),
+                    settings,
                     s.GetService<ILogger<PwmServoMotorDriver>>())).ToArray();
 
                 return new ServoController(sensors, s.GetService<IMessageBroker>(), s.GetService<ILogger<ServoController>>());
