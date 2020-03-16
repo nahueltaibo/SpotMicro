@@ -18,6 +18,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Robot.Messages\Robot.Messages.csproj" />
+    <ProjectReference Include="..\Spot.Model\Spot.Model.csproj" />
   </ItemGroup>
 
 </Project>

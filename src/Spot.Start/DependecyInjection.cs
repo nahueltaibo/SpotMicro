@@ -9,7 +9,8 @@ using Robot.Drivers.RemoteControl;
 using Robot.MessageBus;
 using Robot.ServoMotors;
 using Spot.Controllers;
-using Spot.Reactive;
+using Spot.Model.Posing;
+using Spot.Reactive.Posing;
 using System.Collections.Generic;
 using System.Device.I2c;
 using System.Linq;
@@ -34,12 +35,7 @@ namespace Spot.Start
 
         public static IServiceCollection AddReactiveLayer(this IServiceCollection services, HostBuilderContext hostContext)
         {
-            var configs = hostContext.Configuration.GetSection("actuatos:servoMotors");
-            var mappedConfigs = configs.Get<IEnumerable<PwmServoMotorDriverSettings>>();
-
-            var servoIds = mappedConfigs.Select(config => config.ServoId).ToList();
-
-            services.AddHostedService<PoseAgent>((s) => new PoseAgent(servoIds, s.GetService<IMessageBroker>(), s.GetService<ILogger<PoseAgent>>()));
+            services.AddHostedService<PoseAgent>((s) => new PoseAgent(s.GetService<IMessageBroker>(), s.GetService<ILogger<PoseAgent>>()));
 
             return services;
         }
@@ -71,12 +67,15 @@ namespace Spot.Start
                 var configs = hostContext.Configuration.GetSection("actuatos:servoMotors");
                 var mappedConfigs = configs.Get<IEnumerable<PwmServoMotorDriverSettings>>();
 
+                var posConfig = hostContext.Configuration.GetSection("poseSettings");
+                var poseSettings = posConfig.Get<PoseSettings>();
+
                 var sensors = mappedConfigs.Select(settings => new PwmServoMotorDriver(
                     pca9685.CreatePwmChannel(settings.ChannelId),
                     settings,
                     s.GetService<ILogger<PwmServoMotorDriver>>())).ToArray();
 
-                return new ServoController(sensors, s.GetService<IMessageBroker>(), s.GetService<ILogger<ServoController>>());
+                return new ServoController(sensors, poseSettings, s.GetService<IMessageBroker>(), s.GetService<ILogger<ServoController>>());
             });
 
             return services;

@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Hosting;
 
-namespace Spot.Reactive
+namespace Spot.Reactive.Posing
 {
     interface IPoseAgent : IHostedService
     {
